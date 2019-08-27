@@ -1,5 +1,5 @@
 <template>
-    <div class="tab">
+    <div class="tab border-1px">
         <div class="tab-item">
             <router-link :to='{name: "goods"}'>商品</router-link>
         </div>
