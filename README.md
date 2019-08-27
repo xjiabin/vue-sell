@@ -202,6 +202,86 @@ export default {
 </style>
 ```
 
+## 使用 better-scroll 滚动页面
+[better-scroll官网](https://ustbhuangyi.github.io/better-scroll/doc/zh-hans/)
 
-## 两边有（自适应宽度的）线条的标题
+html结构
+```html
+<div class="wrapper">
+    <ul class="content">
+        <li>...</li>
+        <li>...</li>
+        ...
+    </ul>
+    <!-- 这里可以放一些其它的 DOM，但不会影响滚动 -->
+</div>
+```
+上面的代码中 better-scroll 是作用在外层 wrapper 容器上的，滚动的部分是 content 元素。这里要注意的是，better-scroll 只处理容器（wrapper）的第一个子元素（content）的滚动，其它的元素都会被忽略。
 
+最简单的初始化代码如下：
+
+```js
+import BScroll from 'better-scroll'
+let wrapper = document.querySelector('.wrapper')
+let scroll = new BScroll(wrapper)
+```
+
+### 初始化
+
+```html
+<!-- 左侧列表 -->
+<div class="menu-wrapper" ref="menuWrapper">
+    <ul>
+        ...
+    </ul>
+</div>
+
+<!-- 右侧内容 -->
+<div class="foods-wrapper" ref="foodsWrapper">
+    <ul>
+        ...
+    </ul>
+</div>
+```
+```js
+mounted () {
+    this.$nextTick(() => {
+        this._initScroll();
+    });
+},
+methods: {
+    _initScroll() {
+        // 初始化menu的滚动
+        this.menuScroll = new BScroll(this.$refs.menuWrapper, {});
+        // 初始化food的滚动
+        this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {});
+
+        console.log(this.menuScroll);
+    }
+},
+```
+
+### 左右联动效果
+> 1. 点击左边菜单，右边内容滚动到对应的区域
+> 2. 滚动右边区域，高亮左边对应按钮
+
+依赖`BScroll`的滚动事件，判断当前`Y`值是在哪个区间，左侧菜单就对应显示在哪个区间
+
+- 记录每个区间的高度
+```js
+// 计算区间高度
+_calculateHeight() {
+    // 获取区间元素（该区间包括了区间标题以及该区间下所有的食品：热销榜、单人精彩套餐...）
+    let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook');
+
+    let height = 0;
+    this.listHeight.push(height);
+    for(let i = 0; i < foodList.length; i++) {
+        // 获取每个foodList
+        let item = foodList[i];
+        // 获取高度并累加
+        height += item.clientHeihgt;
+        this.listHeight.push(height);
+    }
+}
+```
