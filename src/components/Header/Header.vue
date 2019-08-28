@@ -48,17 +48,17 @@
 <script>
 import HeaderDetail from '@/components/HeaderDetail/HeaderDetail.vue';
 import SupportsIco from '@/components/Supports-ico/Supports-ico.vue';
-import { getSeller } from 'api/index.js';
 
 export default {
+    props: {
+        seller: {
+            type: Object
+        },
+    },
     data() {
         return {
-            seller: {}, // 
             detailShow: false,
         }
-    },
-    async created () {
-        this.seller = await getSeller();
     },
     methods: {
         showDetail() {

@@ -41,12 +41,19 @@
                 </li>
             </ul>
         </div>
+
+        <!-- 购物车组件 -->
+        <shop-cart
+            :delivery-price="seller.deliveryPrice"
+            :min-price="seller.minPrice">
+        </shop-cart>
     </div>
 </template>
 
 <script>
 import { getGoods } from '@/api/index.js'
 import SupportsIco from '@/components/Supports-ico/Supports-ico.vue';
+import ShopCart from '@/components/ShopCart/ShopCart.vue';
 
 // BetterScroll
 import BScroll from 'better-scroll';
@@ -139,7 +146,7 @@ export default {
         }
     },
     components: {
-        SupportsIco,
+        SupportsIco, ShopCart
     },
 }
 </script>
