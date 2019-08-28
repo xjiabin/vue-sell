@@ -356,5 +356,5 @@ computed: {
 <li v-for="(item, index) in goods" :key="index" class="menu-item" :class="{ 'current': currentIndex == index }">
 ...
 </li>
-
+```
 

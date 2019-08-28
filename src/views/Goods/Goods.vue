@@ -35,6 +35,10 @@
                                     <span class="now">￥{{ food.price }}</span>
                                     <span v-show="food.oldPrice" class="old">￥{{ food.oldPrice }}</span>
                                 </div>
+                                <!-- 购物车控件 -->
+                                <div class="carcontrol-wrapper">
+                                    <cart-control :food="food" />
+                                </div>
                             </div>
                         </li>
                     </ul>
@@ -54,6 +58,7 @@
 import { getGoods } from '@/api/index.js'
 import SupportsIco from '@/components/Supports-ico/Supports-ico.vue';
 import ShopCart from '@/components/ShopCart/ShopCart.vue';
+import CartControl from '@/components/CartControl/CartControl.vue';
 
 // BetterScroll
 import BScroll from 'better-scroll';
@@ -121,7 +126,8 @@ export default {
             });
             // 初始化food的滚动
             this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
-                probeType: 3
+                probeType: 3,
+                click: true
             });
 
             // 监听滚动，获取y值
@@ -146,7 +152,7 @@ export default {
         }
     },
     components: {
-        SupportsIco, ShopCart
+        SupportsIco, ShopCart, CartControl
     },
 }
 </script>
@@ -236,4 +242,8 @@ export default {
                         font-size 10px
                         color rgb(147, 153, 159)
                         text-decoration-line line-through
+                .carcontrol-wrapper
+                    position absolute
+                    right 0
+                    bottom 12px
 </style>
