@@ -272,7 +272,7 @@ methods: {
 // 计算区间高度
 _calculateHeight() {
     // 获取区间元素（该区间包括了区间标题以及该区间下所有的食品：热销榜、单人精彩套餐...）
-    let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook');
+    let foodList = this.$refs.foodsList;
 
     let height = 0;
     this.listHeight.push(height);
@@ -285,3 +285,76 @@ _calculateHeight() {
     }
 }
 ```
+
+这里有个问题，就是要在什么时候去调用这个计算区间高度的方法
+
+如果在生命周期函数`mounted`中调用的话，是无法获取到这些个元素的，原因是因为数据获取是异步操作，如果要计算这些根据数据动态生成的元素，需要在获取数据之后的回调函数中进行
+
+```js
+async created () {
+    this.goods = await getGoods();
+
+    // 在此处初始化BScroll，并且计算高度
+    this.$nextTick(() => {
+        // 初始化Bscroll
+        this._initScroll();
+        // 计算区间高度
+        this._calculateHeight();
+    });
+},
+mounted () {
+    // 不能在mounted中调用计算高度的方法，无法获取foodList.length
+    // 原因：因为数据是异步渲染的，需要在获取数据之后的回调函数中进行操作
+    // this.$nextTick(() => {
+    //     this._calculateHeight();
+    // });
+},
+```
+
+- 记录右侧内容滚动的Y值
+
+通过`better-scroll`的api接口实时监听滚动的Y值
+
+```js
+this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
+    probeType: 3 // 实时派发 scroll 事件
+});
+
+// 监听滚动，获取y值
+this.foodsScroll.on('scroll', pos => {
+    this.scrollY = Math.abs(Math.round(pos.y));
+})
+```
+
+- 左侧高亮
+
+根据`listHeight`中的区间索引来判断，左侧哪个菜单需要高亮
+
+```js
+computed: {
+    currentIndex() {
+        // 遍历每个区间高度
+        for (let i = 0; i < this.listHeight.length; i++) {
+            // 获取区间的上限和下限
+            let height1 = this.listHeight[i];
+            let height2 = this.listHeight[i + 1];
+
+            // 1. 如果遍历到最后一个（i==this.listHeight.length），说明当前是最后一个区间的上限。
+            // 2. 或者当前滚动的y值落在这个区间之内（height1 < y < height2）时，当前区间索引则为左侧菜单高亮的索引
+            if (!height2 || this.scrollY >= height1 && this.scrollY < height2) {
+                // 返回当前索引
+                return i
+            }
+        }
+    }
+}
+```
+
+当`currentIndex`等于左侧当前菜单时，高亮该菜单按钮
+
+```html
+<li v-for="(item, index) in goods" :key="index" class="menu-item" :class="{ 'current': currentIndex == index }">
+...
+</li>
+
+

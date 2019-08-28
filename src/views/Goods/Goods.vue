@@ -3,7 +3,7 @@
         <!-- 左侧列表 -->
         <div class="menu-wrapper" ref="menuWrapper">
             <ul>
-                <li v-for="(item, index) in goods" :key="index" class="menu-item">
+                <li v-for="(item, index) in goods" :key="index" class="menu-item" :class="{ 'current': currentIndex == index }" @click="selectMenu(index, $event)">
                     <span class="text border-1px">
                         <supports-ico class="icon" v-show="item.type>0" :size="3" :type="item.type" />{{ item.name }}
                     </span>
@@ -13,7 +13,7 @@
         <!-- 右侧内容 -->
         <div class="foods-wrapper" ref="foodsWrapper">
             <ul>
-                <li v-for="(item, index) in goods" :key="index" class="food-list food-list-hook" ref="foodList">
+                <li v-for="(item, index) in goods" :key="index" class="food-list" ref="foodList">
                     <!-- 分类名称 -->
                     <h1 class="title">{{ item.name }}</h1>
                     <!-- 分类内容 -->
@@ -66,14 +66,19 @@ export default {
     },
     async created () {
         this.goods = await getGoods();
-    },
-    mounted () {
         this.$nextTick(() => {
             // 初始化Bscroll
             this._initScroll();
             // 计算区间高度
             this._calculateHeight();
         });
+    },
+    mounted () {
+        // 不能在mounted中调用计算高度的方法，无法获取foodList.length
+        // 原因：可能是因为数据是异步渲染的，需要在获取数据之后的回调函数中进行操作
+        // this.$nextTick(() => {
+        //     this._calculateHeight();
+        // });
     },
     computed: {
         // 左侧菜单的当前（高亮的）索引
@@ -85,17 +90,28 @@ export default {
                 let height2 = this.listHeight[i + 1];
                 
                 // 当前是在最后一个区间，或处于这个区间之间
-                if (!height2 || (this.scrollY > height1 && this.scrollY < height2)) {
+                if (!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
                     return i;
                 }
             }
         }
     },
     methods: {
+        // 点击左侧菜单按钮
+        selectMenu(index, event) {
+            // console.log(index, event)
+            let foodList = this.$refs.foodList;
+
+            // 获取右侧相对应的区间dom
+            let el = foodList[index];
+            this.foodsScroll.scrollToElement(el, 300);
+        },
         // 初始化 BScroll
         _initScroll() {
             // 初始化menu的滚动
-            this.menuScroll = new BScroll(this.$refs.menuWrapper, {});
+            this.menuScroll = new BScroll(this.$refs.menuWrapper, {
+                click: true // better-scroll 默认会阻止浏览器的原生 click 事件。当设置为 true，better-scroll 会派发一个 click 事件，我们会给派发的 event 参数加一个私有属性 _constructed，值为 true。
+            });
             // 初始化food的滚动
             this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
                 probeType: 3
@@ -109,15 +125,15 @@ export default {
         // 计算区间高度
         _calculateHeight() {
             // 获取区间元素（该区间包括了区间标题以及该区间下所有的食品：热销榜、单人精彩套餐...）
-            let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook');
+            let foodList = this.$refs.foodList;
 
             let height = 0;
             this.listHeight.push(height);
-            for(let i = 0; i < foodList.length; i++) {
+            for (let i = 0; i < foodList.length; i++) {
                 // 获取每个foodList
                 let item = foodList[i];
                 // 获取高度并累加
-                height += item.clientHeihgt;
+                height += item.clientHeight;
                 this.listHeight.push(height);
             }
         }
@@ -148,6 +164,14 @@ export default {
             width 56px
             line-height 14px
             padding 0 12px
+            &.current
+                position relative
+                z-index 10
+                margin-top -1px
+                background-color #fff
+                font-weight 700
+                .text
+                    border-none()
             .text
                 display table-cell
                 width 56px
