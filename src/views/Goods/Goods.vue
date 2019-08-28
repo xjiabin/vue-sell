@@ -48,6 +48,7 @@
 
         <!-- 购物车组件 -->
         <shop-cart
+            :select-foods="selectFoods"
             :delivery-price="seller.deliveryPrice"
             :min-price="seller.minPrice">
         </shop-cart>
@@ -106,6 +107,19 @@ export default {
                     return i;
                 }
             }
+        },
+        // 选择加入购物车的商品
+        selectFoods() {
+            let foods = [];
+            this.goods.forEach(good => {
+                good.foods.forEach(food => {
+                    if (food.count) {
+                        foods.push(food);
+                    }
+                });
+            });
+
+            return foods;
         }
     },
     methods: {
