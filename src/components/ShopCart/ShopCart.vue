@@ -21,37 +21,10 @@
                 <div class="pay" :class="payClass">{{ payDesc }}</div>
             </div>
         </div>
-
-        <!-- 购物车小球动画控件 -->
-        <div class="ball-container">
-            <div v-for="(ball, index) in balls" :key="index">
-                <transition
-                    @before-enter="beforeDrop"
-                    @enter="dropping"
-                    @after-enter="afterDrop"
-                >
-                    <div v-show="ball.show" class="ball">
-                        <div class="inner inner-hook"></div>
-                    </div>
-                </transition>
-            </div>
-        </div>
     </div>
 </template>
 
 <script>
-
-const BALL_LEN = 5;
-const INNER_CLS = 'inner-hook'
-
-function createBalls() {
-    let balls = [];
-    for(let i = 0; i < BALL_LEN; i++) {
-        balls.push({ show: false })
-    }
-    return balls;
-}
-
 export default {
     props: {
         selectFoods: {
@@ -70,12 +43,6 @@ export default {
         minPrice: {
             type: Number,
             default: 20
-        }
-    },
-    data() {
-        return {
-            balls: createBalls(), // 创建小球
-            dropBalls: [], // 保留所有在做动画的小球
         }
     },
     computed: {
@@ -111,69 +78,6 @@ export default {
         // 结算按钮
         payClass() {
             return (this.totalPrice >= this.minPrice) ? 'enough' : 'not-enough'
-        }
-    },
-    methods: {
-        // 小球下落方法
-        drop(el) {
-            // console.log(el);
-            // 获取所有小球中，第一个show=false的小球
-            for(let i = 0; i < this.balls.length; i++) {
-                let ball = this.balls[i];
-                if (!ball.show) {
-                    // 显示小球，触发动画的关键
-                    ball.show = true;
-                    // 保存元素
-                    ball.el = el;
-                    // 保留该小球
-                    this.dropBalls.push(ball);
-                    return;
-                }
-            }
-        },
-        // 动画开始前
-        beforeDrop(el) {
-            // 把所有show=true的小球拿出来做动画
-            let count = this.balls.length;
-            while(count--) {
-                let ball = this.balls[count];
-                if (ball.show) {
-                    // 获取动画起始位置与终点位置的(x/y)的差值
-                    let rect = ball.el.getBoundingClientRect();
-                    let x = rect.left - 32;
-                    let y = -(window.innerHeight - rect.top - 24);
-
-                    // 手动控制显隐
-                    el.style.display = 'block';
-                    // 设置动画起始 y轴位置
-                    el.style.transform = el.style.webkitTransform = `translate3d(0, ${y}px, 0)`;
-                    // 设置动画起始 x轴位置
-                    let inner = el.getElementsByClassName(INNER_CLS)[0];
-                    inner.style.transform = inner.style.webkitTransform = `translate3d(${x}px, 0, 0)`;
-                }
-            }
-        },
-        // 动画中
-        dropping(el, done) {
-            // 手动触发浏览器重绘
-            /* eslint-disable no-unused-vars */
-            let rf = el.offsetHeight;
-
-            // 设置动画终点 y轴位置
-            el.style.transform = el.style.webkitTransform = 'translate3d(0, 0, 0)';
-            // 设置动画终点 x轴位置
-            let inner = el.getElementsByClassName(INNER_CLS)[0];
-            inner.style.transform = inner.style.webkitTransform = 'translate3d(0, 0, 0)';
-
-            el.addEventListener('transitionend', done);
-        },
-        // 动画完成后
-        afterDrop(el) {
-            let ball = this.dropBalls.shift();
-            if (ball) {
-                ball.show = false;
-                el.style.display = 'none';
-            }
         }
     },
 }
@@ -266,17 +170,5 @@ export default {
                 &.enough
                     background #00b43c
                     color #fff
-    .ball-container
-        .ball
-            position: fixed
-            left: 32px
-            bottom: 22px
-            z-index: 200
-            transition: all 0.4s cubic-bezier(0.49, -0.29, 0.75, 0.41)
-            .inner
-                width: 16px
-                height: 16px
-                border-radius: 50%
-                background: rgb(0, 120, 220)
-                transition: all 0.4s linear
+
 </style>

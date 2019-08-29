@@ -50,8 +50,7 @@
         <shop-cart
             :select-foods="selectFoods"
             :delivery-price="seller.deliveryPrice"
-            :min-price="seller.minPrice"
-            ref="shopcart">
+            :min-price="seller.minPrice">
         </shop-cart>
     </div>
 </template>
@@ -64,6 +63,9 @@ import CartControl from '@/components/CartControl/CartControl.vue';
 
 // BetterScroll
 import BScroll from 'better-scroll';
+
+import Ball from '@/components/Ball/Ball';
+import create from '@/services/create';
 
 export default {
     props: {
@@ -124,9 +126,17 @@ export default {
         }
     },
     methods: {
-        addCart(target) {
-            // console.log(target);
-            this.$refs.shopcart.drop(target);
+        addCart(el) {
+            const props = { el }
+            // 创建动画
+            const anim = create(Ball, { props });
+            // 开始动画
+            anim.start();
+
+            // 动画结束销毁实例
+            anim.$on('transitionend', () => {
+                anim.remove();
+            });
         },
         // 点击左侧菜单按钮
         selectMenu(index, event) {
