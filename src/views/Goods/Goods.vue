@@ -37,7 +37,7 @@
                                 </div>
                                 <!-- 购物车控件 -->
                                 <div class="carcontrol-wrapper">
-                                    <cart-control :food="food" />
+                                    <cart-control :food="food" @add="addCart" />
                                 </div>
                             </div>
                         </li>
@@ -50,7 +50,8 @@
         <shop-cart
             :select-foods="selectFoods"
             :delivery-price="seller.deliveryPrice"
-            :min-price="seller.minPrice">
+            :min-price="seller.minPrice"
+            ref="shopcart">
         </shop-cart>
     </div>
 </template>
@@ -123,6 +124,10 @@ export default {
         }
     },
     methods: {
+        addCart(target) {
+            // console.log(target);
+            this.$refs.shopcart.drop(target);
+        },
         // 点击左侧菜单按钮
         selectMenu(index, event) {
             // console.log(index, event)

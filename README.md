@@ -358,3 +358,131 @@ computed: {
 </li>
 ```
 
+## 购物车小球动画
+
+### 定义动画小球
+
+定义多几个小球，以供频繁点击
+
+```js
+balls: [ // 小球数组
+    {
+        show: false // 控制该小球的显隐状态
+    },
+    {
+        show: false // 控制该小球的显隐状态
+    },
+    {
+        show: false // 控制该小球的显隐状态
+    },
+    {
+        show: false // 控制该小球的显隐状态
+    },
+    {
+        show: false // 控制该小球的显隐状态
+    }
+]
+```
+
+### 获取点击的购物车控件的位置，并通过goods组件派发给shopcart组件
+
+`cartcontrol.vue` 派发`add`事件
+```js
+// 添加购物车
+addCart(e) {
+    if (!this.food.count) {
+        // this.food.count = 1
+        // 动态添加属性
+        this.$set(this.food, 'count', 1)
+    } else {
+        this.food.count += 1
+    }
+
+    // 派发事件
+    this.$emit('add', e.target)
+},
+```
+
+`goods.vue` 接收`add`事件
+```html
+<cart-control :food="food" @add="addCart" />
+
+<script>
+// ...
+addCart(target) {
+    // 传递给shopcart组件
+    this.$refs.shopcart.drop(target);
+},
+// ...
+</script>
+```
+
+`shopcart.vue` 接收`target`
+```js
+drop(el) {
+    // console.log(el);
+    // 获取所有小球中，第一个show=false的小球
+    for(let i = 0; i < this.balls.length; i++) {
+        let ball = this.balls[i];
+        if (!ball.show) {
+            // 显示小球，触发动画的关键
+            ball.show = true;
+            // 保存元素
+            ball.el = el;
+            // 保留该小球
+            this.dropBall.push(ball);
+            return;
+        }
+    }
+}
+
+// 动画开始前
+beforeDrop(el) {
+    // 把所有show=true的小球拿出来做动画
+    let count = this.balls.length;
+    while(count--) {
+        let ball = this.balls[count];
+        if (ball.show) {
+            // 获取动画起始位置与终点位置的(x/y)的差值
+            let rect = ball.el.getBoundingClientRect();
+            let x = rect.left - 32;
+            let y = -(window.innerHeight - rect.top - 24);
+
+            // 手动控制显隐
+            el.style.display = 'block';
+            // 设置动画起始 y轴位置
+            el.style.transform = el.style.webkitTransform = `translate3d(0, ${y}px, 0)`;
+            // 设置动画起始 x轴位置
+            let inner = el.getElementsByClassName(INNER_CLS)[0];
+            inner.style.transform = inner.style.webkitTransform = `translate3d(${x}px, 0, 0)`;
+        }
+    }
+},
+// 动画中
+dropping(el, done) {
+    // 手动触发浏览器重绘
+    /* eslint-disable no-unused-vars */
+    let rf = el.offsetHeight;
+
+    // 设置动画终点 y轴位置
+    el.style.transform = el.style.webkitTransform = 'translate3d(0, 0, 0)';
+    // 设置动画终点 x轴位置
+    let inner = el.getElementsByClassName(INNER_CLS)[0];
+    inner.style.transform = inner.style.webkitTransform = 'translate3d(0, 0, 0)';
+
+    el.addEventListener('transitionend', done);
+},
+// 动画完成后
+afterDrop(el) {
+    let ball = this.dropBalls.shift();
+    if (ball) {
+        ball.show = false;
+        el.style.display = 'none';
+    }
+}
+
+```
+
+
+
+

@@ -11,6 +11,9 @@
 </template>
 
 <script>
+
+const EVENT_ADD = 'add';
+
 export default {
     /**
      * 所有的 prop 都使得其父子 prop 之间形成了一个单向下行绑定：父级 prop 的更新会向下流动到子组件中，但是反过来则不行
@@ -25,7 +28,7 @@ export default {
     },
     methods: {
         // 添加购物车
-        addCart() {
+        addCart(e) {
             if (!this.food.count) {
                 // this.food.count = 1
                 // 动态添加属性
@@ -33,6 +36,8 @@ export default {
             } else {
                 this.food.count += 1
             }
+
+            this.$emit(EVENT_ADD, e.target)
         },
         // 减少购物车
         decreaseCart() {
