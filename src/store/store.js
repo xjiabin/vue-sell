@@ -108,18 +108,20 @@ const store = new Vuex.Store({
             cartFood.count ++;
         },
         minunsFoodCount(state, { id }) {
-            let foodCart = state.shopcart.find(item => item.id === id);
-
-            if (foodCart) {
-                if (foodCart.count == 0) {
-                    foodCart.count = 0;
-                } else {
-                    foodCart.count--;
+            state.shopcart.forEach((item, index) => {
+                if (item.id === id) {
+                    item.count--;
+                    if (item.count === 0) {
+                        state.shopcart.splice(index, 1)
+                    }
                 }
-            }
+            })
         },
         // 清空购物车
         empty(state) {
+            state.goods.forEach(item => {
+                item.foods.forEach(food => food.count = 0)
+            })
             state.shopcart = [];
         }
     }
