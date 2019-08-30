@@ -64,10 +64,10 @@ import CartControl from '@/components/CartControl/CartControl.vue';
 // BetterScroll
 import BScroll from 'better-scroll';
 
-import Ball from '@/components/Ball/Ball';
-import create from '@/services/create';
+import ballMixin from '@/common/mixin/ballAnim';
 
 export default {
+    mixins: [ballMixin],
     props: {
         seller: {
             type: Object
@@ -126,18 +126,6 @@ export default {
         }
     },
     methods: {
-        addCart(el) {
-            const props = { el }
-            // 创建动画
-            const anim = create(Ball, { props });
-            // 开始动画
-            anim.start();
-
-            // 动画结束销毁实例
-            anim.$on('transitionend', () => {
-                anim.remove();
-            });
-        },
         // 点击左侧菜单按钮
         selectMenu(index, event) {
             // console.log(index, event)
