@@ -1,6 +1,6 @@
 <template>
-    <div class="shopcart" @click="toggleList">
-        <div class="content">
+    <div class="shopcart">
+        <div class="content" @click="toggleList">
             <!-- 左边 -->
             <div class="content-left">
                 <!-- 购物车logo -->
@@ -17,16 +17,23 @@
 
             </div>
             <!-- 右边 起送/下单按钮 -->
-            <div class="content-right">
+            <div class="content-right" @click.stop.prevent="pay">
                 <div class="pay" :class="payClass">{{ payDesc }}</div>
             </div>
         </div>
+
+        <shop-cart-list
+            @hide="hideEvent"
+            ref="shopCartList"/>
     </div>
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 import ShopCartList from '@/components/ShopCartList/ShopCartList';
+
+import Dialog from '@/components/Dialog/Dialog.vue';
+import create from '@/services/create';
 
 export default {
     props: {
@@ -37,6 +44,11 @@ export default {
         minPrice: {
             type: Number,
             default: 20
+        }
+    },
+    data() {
+        return {
+            fold: true, // 是否折叠
         }
     },
     computed: {
@@ -61,10 +73,55 @@ export default {
             return (this.totalPrice >= this.minPrice) ? 'enough' : 'not-enough'
         }
     },
-    methods: {
-        toggleList() {
-            console.log(1);
+    watch: {
+        // 当列表处于显示状态，而数量变为0时，折叠列表
+        totalCount(count) {
+            if (!this.fold && count === 0) {
+                this._hideCartList();
+            }
         }
+    },
+    methods: {
+        ...mapActions(['emptyCart']),
+
+        pay() {
+            if (this.totalPrice < this.minPrice) return;
+
+            const dialog = create(Dialog, {
+                props: {
+                    msg: `你购买了${this.totalCount}个商品，共需要支付${this.totalPrice}元`
+                }
+            });
+            dialog.show();
+            dialog.$on('confirm', () => {
+                this.emptyCart();
+                console.log('购买成功');
+                dialog.hide();
+            });
+            dialog.$on('cancel', () => {
+                console.log('取消购买');
+                dialog.hide();
+            });
+        },
+        toggleList() {
+            if (this.fold) {
+                if (!this.totalCount) return;
+                this.fold = false;
+                this._showCartList();
+            } else {
+                this._hideCartList();
+                this.fold = true;
+            }
+        },
+        hideEvent() {
+            this.fold = true;
+        },
+        _showCartList() {
+            this.$refs.shopCartList.show();
+        },
+        _hideCartList() {
+            this.$refs.shopCartList.hide();
+        },
     },
     components: {
         ShopCartList,
@@ -75,7 +132,7 @@ export default {
 <style lang="stylus" scoped>
 .shopcart
     position fixed
-    z-index 50
+    z-index 200
     left 0
     bottom 0
     width 100%
