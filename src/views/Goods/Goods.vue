@@ -48,7 +48,6 @@
 
         <!-- 购物车组件 -->
         <shop-cart
-            :select-foods="selectFoods"
             :delivery-price="seller.deliveryPrice"
             :min-price="seller.minPrice">
         </shop-cart>
@@ -60,6 +59,7 @@ import { getGoods } from '@/api/index.js'
 import SupportsIco from '@/components/Supports-ico/Supports-ico.vue';
 import ShopCart from '@/components/ShopCart/ShopCart.vue';
 import CartControl from '@/components/CartControl/CartControl.vue';
+import { mapState, mapActions } from 'vuex';
 
 // BetterScroll
 import BScroll from 'better-scroll';
@@ -75,13 +75,13 @@ export default {
     },
     data() {
         return {
-            goods: [], // 商品数据
             listHeight: [], // 每个区间的高度
             scrollY: 0, // 保存区域滚动的Y轴位置
         }
     },
     async created () {
-        this.goods = await getGoods();
+        await this.initProduct();
+
         this.$nextTick(() => {
             // 初始化Bscroll
             this._initScroll();
@@ -97,6 +97,8 @@ export default {
         // });
     },
     computed: {
+        ...mapState(['goods']), // 商品数据
+
         // 左侧菜单的当前（高亮的）索引
         currentIndex() {
             for(let i = 0; i < this.listHeight.length; i++) {
@@ -111,21 +113,10 @@ export default {
                 }
             }
         },
-        // 选择加入购物车的商品
-        selectFoods() {
-            let foods = [];
-            this.goods.forEach(good => {
-                good.foods.forEach(food => {
-                    if (food.count) {
-                        foods.push(food);
-                    }
-                });
-            });
-
-            return foods;
-        }
     },
     methods: {
+        ...mapActions(['initProduct']),
+
         // 点击左侧菜单按钮
         selectMenu(index, event) {
             // console.log(index, event)

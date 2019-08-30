@@ -11,6 +11,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 
 const EVENT_ADD = 'add';
 
@@ -27,23 +28,20 @@ export default {
         },
     },
     methods: {
+        ...mapActions({
+            addToCart: 'addCart',
+            'minunsCart': 'minunsCart'
+        }),
+
         // 添加购物车
         addCart(e) {
-            if (!this.food.count) {
-                // this.food.count = 1
-                // 动态添加属性
-                this.$set(this.food, 'count', 1)
-            } else {
-                this.food.count += 1
-            }
+            this.addToCart(this.food);
 
             this.$emit(EVENT_ADD, e.target)
         },
         // 减少购物车
         decreaseCart() {
-            if (this.food.count) {
-                this.food.count -= 1;
-            }
+            this.minunsCart(this.food);
         }
     },
 }

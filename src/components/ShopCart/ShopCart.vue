@@ -1,5 +1,5 @@
 <template>
-    <div class="shopcart">
+    <div class="shopcart" @click="toggleList">
         <div class="content">
             <!-- 左边 -->
             <div class="content-left">
@@ -25,17 +25,11 @@
 </template>
 
 <script>
+import { mapState, mapGetters } from 'vuex';
+import ShopCartList from '@/components/ShopCartList/ShopCartList';
+
 export default {
     props: {
-        selectFoods: {
-            type: Array,
-            default() { // type为Array或者Object时，default应该是一个函数，返回默认值
-                return [{
-                    count: 1,
-                    price: 12
-                }]
-            }
-        },
         deliveryPrice: {
             type: Number,
             default: 0
@@ -46,24 +40,11 @@ export default {
         }
     },
     computed: {
-        // 商品总价
-        totalPrice() {
-            let total = 0;
-            this.selectFoods.forEach(food => {
-                total += food.price * food.count;
-            });
+        // 购物车
+        ...mapState(['shopcart']),
+        // 商品总数   商品总价
+        ...mapGetters(['totalCount', 'totalPrice']),
 
-            return total;
-        },
-        // 商品总数
-        totalCount() {
-            let count = 0;
-            this.selectFoods.forEach(food => {
-                count += food.count;
-            });
-
-            return count;
-        },
         // 结算按钮文字描述
         payDesc() {
             if (this.totalPrice === 0) {
@@ -79,6 +60,14 @@ export default {
         payClass() {
             return (this.totalPrice >= this.minPrice) ? 'enough' : 'not-enough'
         }
+    },
+    methods: {
+        toggleList() {
+            console.log(1);
+        }
+    },
+    components: {
+        ShopCartList,
     },
 }
 </script>
