@@ -90,7 +90,11 @@ export default {
         },
         empty() {
 
-            const dialog = create(VDialog);
+            const dialog = create(VDialog, {
+                props: {
+                    msg: '是否清空购物车'
+                }
+            });
             dialog.show();
 
             dialog.$on('confirm', () => {
@@ -98,7 +102,7 @@ export default {
 
                 const toast = create(Toast, {
                     props: {
-                        msg: '清除成功'
+                        msg: '操作成功'
                     }
                 });
                 toast.show();
