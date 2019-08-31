@@ -1,7 +1,7 @@
 <template>
     <transition
         name="fade"
-        @after-leave="leave"
+        @after-leave="afterLeave"
     >
         <div class="toast" v-show="showToast">
             <div class="toast-mask" v-show="mask"></div>
@@ -28,6 +28,15 @@
                 type: String,
                 default: 'toast'
             },
+            mask: {
+                type: Boolean,
+                default: true
+            },
+            duration: {
+                type: Number,
+                default: 2000
+            },
+
         },
         data() {
             return {
@@ -37,9 +46,13 @@
         methods: {
             show() {
                 this.showToast = true;
+                setTimeout(() => {
+                    this.showToast = false;
+                }, this.duration);
             },
-            leave() {
-                this.$emit('transitionend');
+            afterLeave() {
+                this.remove();
+                this.$emit('transitionend')
             }
         },
     }
@@ -64,17 +77,22 @@
         left 0
         width 100%
         height 100%
-        background rgba(7, 17, 27, .1)
+        background rgba(7, 17, 27, 0)
     .toast-container
         position absolute
         top 50%
         left 50%
+        max-width 200px
         transform translate(-50%, -50%)
-        background rgb(7, 17, 27)
-        padding 20px 30px
-        & > p
-            display table
-            width 100%
-            height 100%
-            text-align center
+        background rgba(31, 35, 39, 0.9);
+        padding 8px 15px
+        border-radius 10px
+        p
+            display: table;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            color: #fff;
+            font-size 12px
+            word-break: break-word;
 </style>
