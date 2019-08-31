@@ -52,6 +52,7 @@ import ballMixin from '@/common/mixin/ballAnim';
 import { mapState, mapGetters, mapActions } from 'vuex';
 
 import create from '@/services/create';
+import Toast from '@/components/Toast/Toast';
 
 import BScroll from 'better-scroll';
 
@@ -88,11 +89,20 @@ export default {
             this.hide()
         },
         empty() {
+
             const dialog = create(VDialog);
             dialog.show();
 
             dialog.$on('confirm', () => {
                 this.emptyCart();
+
+                const toast = create(Toast, {
+                    props: {
+                        msg: '清除成功'
+                    }
+                });
+                toast.show();
+
                 dialog.hide();
             });
             dialog.$on('cancel', () => {

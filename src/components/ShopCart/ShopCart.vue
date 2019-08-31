@@ -33,6 +33,7 @@ import { mapState, mapGetters, mapActions } from 'vuex';
 import ShopCartList from '@/components/ShopCartList/ShopCartList';
 
 import Dialog from '@/components/Dialog/Dialog.vue';
+import Toast from '@/components/Toast/Toast';
 import create from '@/services/create';
 
 export default {
@@ -95,7 +96,14 @@ export default {
             dialog.show();
             dialog.$on('confirm', () => {
                 this.emptyCart();
-                console.log('购买成功');
+                
+                const toast = create(Toast, {
+                    props: {
+                        msg: '购买成功'
+                    }
+                });
+                toast.show();
+
                 dialog.hide();
             });
             dialog.$on('cancel', () => {
