@@ -658,3 +658,31 @@ export default {
 </script>
 
 ```
+
+## 由于图片加载完成, 高度变化发生的内容抖动问题
+
+图片宽高相等
+
+```html
+<div class="image-header">
+    <img :src="food.image">
+</div>
+```
+
+先将包裹层 `image-header`高度设置为0
+```css
+.image-header {
+    position: relative;
+    width: 100%; /* 图片宽度与屏幕宽度一致 */
+    height: 0;
+    padding-top: 100%; /* 如果设置padding-top:100% 是根据容器的宽度进行计算的 所以看起来就像是宽高一致的容器了 */
+}
+/* 然后将容器下的img标签设置绝对定位,宽高都等于容器 */
+.image-height img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+```

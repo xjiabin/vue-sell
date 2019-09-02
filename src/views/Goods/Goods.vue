@@ -18,7 +18,7 @@
                     <h1 class="title">{{ item.name }}</h1>
                     <!-- 分类内容 -->
                     <ul>
-                        <li v-for="(food, findex) in item.foods" :key="findex" class="food-item">
+                        <li v-for="(food, findex) in item.foods" :key="findex" class="food-item" @click="selectFood(food)">
                             <!-- 商品图标 -->
                             <div class="icon">
                                 <img :src="food.icon" width="57" height="57" />
@@ -51,6 +51,8 @@
             :delivery-price="seller.deliveryPrice"
             :min-price="seller.minPrice">
         </shop-cart>
+
+        <food :food="selectedFood" ref="food" />
     </div>
 </template>
 
@@ -58,6 +60,7 @@
 import { getGoods } from '@/api/index.js'
 import SupportsIco from '@/components/Supports-ico/Supports-ico.vue';
 import ShopCart from '@/components/ShopCart/ShopCart.vue';
+import Food from '@/components/Food/Food.vue';
 import CartControl from '@/components/CartControl/CartControl.vue';
 import { mapState, mapActions } from 'vuex';
 
@@ -77,6 +80,8 @@ export default {
         return {
             listHeight: [], // 每个区间的高度
             scrollY: 0, // 保存区域滚动的Y轴位置
+
+            selectedFood: {}, // 选中的food
         }
     },
     async created () {
@@ -116,6 +121,12 @@ export default {
     },
     methods: {
         ...mapActions(['initProduct']),
+
+        // 查看food详情
+        selectFood(food) {
+            this.selectedFood = food;
+            this.$refs.food.show();
+        },
 
         // 点击左侧菜单按钮
         selectMenu(index, event) {
@@ -160,7 +171,8 @@ export default {
         }
     },
     components: {
-        SupportsIco, ShopCart, CartControl
+        SupportsIco, ShopCart,
+        CartControl, Food
     },
 }
 </script>
