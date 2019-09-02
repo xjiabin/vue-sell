@@ -90,7 +90,7 @@ export default {
 
             const dialog = create(Dialog, {
                 props: {
-                    msg: `你购买了${this.totalCount}个商品，共需要支付${this.totalPrice}元`
+                    msg: `你购买了${this.totalCount}个商品，共需要支付${this.totalPrice + this.deliveryPrice}元`
                 }
             });
             dialog.show();
