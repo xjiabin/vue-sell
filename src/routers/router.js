@@ -1,8 +1,5 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Goods from '@/views/Goods/Goods.vue';
-import Ratings from '@/views/Ratings/Ratings.vue';
-import Seller from '@/views/Seller/Seller.vue';
 
 Vue.use(Router)
 
@@ -17,17 +14,17 @@ const router = new Router({
         {
             path: '/goods',
             name: 'goods',
-            component: Goods
+            component: () => import(/* webpackChunkName: 'goods' */'@/views/Goods/Goods.vue')
         },
         {
             path: '/ratings',
             name: 'ratings',
-            component: Ratings
+            component: () => import(/* webpackChunkName: 'ratings */'@/views/Ratings/Ratings.vue')
         },
         {
             path: '/seller',
             name: 'seller',
-            component: Seller
+            component: () => import(/* webpackChunkName: 'seller' */'@/views/Seller/Seller.vue')
         }
     ]
 })
