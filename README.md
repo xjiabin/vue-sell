@@ -226,6 +226,86 @@ let wrapper = document.querySelector('.wrapper')
 let scroll = new BScroll(wrapper)
 ```
 
+### 注意
+
+1. better-scroll 滚动原理: 一个**固定高度的容器**作为视口`wrapper`, 里面嵌套一个**由内容撑开高度**的容器`list`, 如果需要滚动, 则里面`list`容器的高度必须要超出视口`wrapper`高度; ( 宽度亦然 ). 否则无法被滚动
+
+2. better-scroll 强依赖于 DOM 结构, 必须在页面 DOM 结构没有被加载完成(后端数据加载完成)之后才能去初始化 better-scroll, 否则无法被滚动.
+
+所以初始化 better-scroll 的时机有以下几个: 
+
+
+- 1. 可以在**成功获取数据之后**, 在 `$nextTick` 中初始化
+
+如: 
+ ```js
+async create() {
+    // 获取数据
+    let data = await getGoods();
+
+    this.$nextTick(() => {
+        // 在此处初始化better-scroll
+        this._initScroll();
+    })
+}
+ ```
+
+- 2. 如果数据通过 `props` 接收, 可以在`mounted`中初始化
+
+如: 
+```js
+props: {
+    'seller': {
+        type: Object
+    }
+},
+mounted() {
+    this.$nextTick(() => {
+        // 在此处初始化
+        this._initScroll();
+    })
+},
+
+```
+
+但是, 如果是通过props接收的数据, 并不能保证在组件mounted 的时候, 数据就已经接收到了.
+
+所以需要通过watcher来监听数据的变化, 从而进行初始化better-scroll的操作
+
+```js
+watch() {
+    seller(newV) {
+        this.$nextTick(() => {
+            this._initScroll();
+        })
+    }
+}
+```
+
+### better-scroll 滚动嵌套使用
+
+有时候我们使用 `better-scroll` 在某个方向模拟滚动的时候，希望在另一个方向保留原生的滚动（比如轮播图，我们希望横向模拟横向滚动，而纵向的滚动还是保留原生滚动
+
+这时候就可以设置 `eventPassthrough` 为 `vertical`；
+相应的，如果我们希望保留横向的原生滚动，可以设置 `eventPassthrough` 为 `horizontal`）。
+
+如: 在纵向滚动的页面中嵌套一个横向滚动的区域
+
+> 但是在这里  内容的宽度必须大于视口的宽度, 否则无法滚动
+
+```js
+this.$nextTick(() => {
+    if (!this.picScroll) {
+        this.picScroll = new BScroll(this.$refs.picWrapper, {
+            scrollX: true, // 希望要 横向滚动
+            eventPassthrough: 'vertical' // 保留 纵向的滚动
+        })
+    } else {
+        this.picScroll.refresh();
+    }
+})
+```
+
 ### 初始化
 
 ```html

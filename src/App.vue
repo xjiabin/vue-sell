@@ -10,16 +10,25 @@
 <script>
 import VHeader from '@/components/Header/Header.vue';
 import Tab from '@/components/Tab/Tab.vue';
-import { getSeller } from 'api/index.js';
+import { getSeller } from '@/api/index.js';
+import { urlParse } from '@/common/js/urlParse';
 
 export default {
     data() {
         return {
-            seller: {},
+            seller: {
+                id: (() => {
+                    let queryParma = urlParse();
+                    return queryParma.id
+                })()
+            },
         }
     },
     async created () {
-        this.seller = await getSeller();
+        const seller = await getSeller({
+            id: this.seller.id
+        });
+        this.seller = Object.assign({}, this.seller, seller);
     },
     components: {
         VHeader,
